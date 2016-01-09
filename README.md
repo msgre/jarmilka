@@ -1,6 +1,8 @@
 **Jarmilka** je jednoúčelové zařízení sloužící k překopírovávání dat z SD karty
 na USB disk či klíčenku. 
 
+[![Jarmilka v akci](graphics/jarmilka.jpg)](https://youtu.be/zEyx_CmIOS8)
+
 **Obsah**
 
 * [Příběh](#p%C5%99%C3%ADb%C4%9Bh)
