@@ -1,18 +1,18 @@
-Jarmilka je jednoúčelové zařízení které slouží k jednoduchému překopírování
-dat z SD karty na USB disk či klíčenku. 
+**Jarmilka** je jednoúčelové zařízení sloužící k překopírovávání dat z SD karty
+na USB disk či klíčenku. 
 
 **Obsah**
 
-* [Příběh](#příběh)
-* Jak to funguje
-* Instalace
+* [Příběh](#p%C5%99%C3%ADb%C4%9Bh)
+* [Jak to funguje](#jak-to-funguje)
+* [Instalace](#instalace)
 * Technické detaily
-    * Zapojení Raspberry Pi
-    * Zapojení USB hubu
-    * Zvuky
-    * Detekce vstupních zařízení
-    * Procesing
-* Děkovačka
+    * [Zapojení Raspberry Pi](#zapojen%C3%AD-raspberry-pi)
+    * [Zapojení USB hubu](#zapojen%C3%AD-usb-hubu)
+    * [Zvuky](#zvuky)
+    * [Detekce vstupních zařízení](#detekce-vstupn%C3%ADch-za%C5%99%C3%ADzen%C3%AD)
+    * [Procesing](#procesing)
+* [Děkovačka](#d%C4%9Bkova%C4%8Dka)
 
 # Příběh
 
@@ -79,10 +79,10 @@ Na GPIO porty jsou připojeny LED diody a tlačítko:
 
 ![Zapojení LED diod a tlačítka k RPi](graphics/jarmilka.png)
 
-* GPIO2 -- LED pro vstupní USB zařízení, viz konstanta `LED_1_PIN`
-* GPIO3 -- LED pro výstupní USB zařízení, viz konstanta `LED_2_PIN`
-* GPIO4 -- LED pro tlačítko, viz konstanta `LED_BUTTON_PIN`
-* GPIO15 -- tlačítko, `BUTTON_PIN`
+* GPIO2 -- LED pro vstupní USB zařízení, viz [LED_1_PIN](application/jarmilka.py#L32)
+* GPIO3 -- LED pro výstupní USB zařízení, viz [LED_2_PIN](application/jarmilka.py#L33)
+* GPIO4 -- LED pro tlačítko, viz [LED_BUTTON_PIN](application/jarmilka.py#L34)
+* GPIO15 -- tlačítko, viz [BUTTON_PIN](application/jarmilka.py#L36)
 
 ## Zapojení USB hubu
 
@@ -93,13 +93,15 @@ napájení Rpi a následně restarty.
 
 Mnou použitý USB hub má celkem 7 portů (a-g), které se mapují uvnitř Rpi následovně:
 
-Hub, pohled z vrchu (X je napájení):
+    Hub, pohled z vrchu (X je napájení):
 
     X  a  b  c
     +--+--+--+
     |        |
     +--+--+--+
     d  e  f  g
+
+    Řetězce identifikující jednotlivé porty:
 
     a: /devices/platform/soc/20980000.usb/usb1/1-1/1-1.2/1-1.2.3/1-1.2.3:1.0
     b: /devices/platform/soc/20980000.usb/usb1/1-1/1-1.2/1-1.2.4/1-1.2.4.4/1-1.2.4.4:1.0
@@ -112,25 +114,25 @@ Hub, pohled z vrchu (X je napájení):
 
 V aplikaci se vyskytují dvě konstanty, které identifikují konkrétní port:
 
-* `INPUT_USB` -- identifikátor vstupního USB zařízení
-* `OUTPUT_USB` -- identifikátor výstupního USB zařízení
+* [INPUT_USB](application/jarmilka.py#L29) -- identifikátor vstupního USB zařízení
+* [OUTPUT_USB](application/jarmilka.py#L30) -- identifikátor výstupního USB zařízení
 
 Je velmi pravděpodobné, že v tvé situaci budou mít zařízení jiné identifikátory.
-(vlastní hodnoty odhalíš pohledem do `/var/log/syslog)`.
+(vlastní hodnoty odhalíš pohledem do `/var/log/syslog` uvnitř RPi).
 
 ## Zvuky
 
-V adresáři `sounds/` je sada WAV souborů pro jednotlivé fáze kopírování.
-Soubory jsou pojmenovány podle klíče `stav_cislo.wav`, kde `stav` odpovídá
-konkrétnímu stavu aplikace (viz výše) a `cislo` označuje variantu hlášky (každá
-z variant je namluvena jedním z vnoučat).
+V adresáři [sounds/](application/sounds/) je sada WAV souborů pro jednotlivé
+fáze kopírování.  Soubory jsou pojmenovány podle klíče `stav_cislo.wav`, kde
+`stav` odpovídá konkrétnímu stavu aplikace a `cislo` označuje
+variantu hlášky (každá z variant je namluvena jedním z vnoučat).
 
-Např. zpráva "Připoj jedničku" existuje ve 3 variantách (`one_01.wav`,
+Např. zpráva *Připoj jedničku* existuje ve 3 variantách (`one_01.wav`,
 `one_02.wav`, `one_03.wav`). Aplikace Jarmilka si pak náhodně vybírá některou 
 z nich.
 
 Pokud budeš do sady zvuků zasahovat, možná budeš muset aktualizovat slovník
-`SOUNDS` uvnitř application/jarmilka.py.
+[SOUNDS](application/jarmilka.py#L118).
 
 ## Detekce vstupních zařízení
 
