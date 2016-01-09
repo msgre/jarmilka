@@ -3,7 +3,7 @@ dat z SD karty na USB disk či klíčenku.
 
 **Obsah**
 
-* Příběh
+* [Příběh](#příběh)
 * Jak to funguje
 * Instalace
 * Technické detaily
@@ -95,11 +95,11 @@ Mnou použitý USB hub má celkem 7 portů (a-g), které se mapují uvnitř Rpi 
 
 Hub, pohled z vrchu (X je napájení):
 
-   X  a  b  c
-   +--+--+--+
-   |        |
-   +--+--+--+
-   d  e  f  g
+    X  a  b  c
+    +--+--+--+
+    |        |
+    +--+--+--+
+    d  e  f  g
 
     a: /devices/platform/soc/20980000.usb/usb1/1-1/1-1.2/1-1.2.3/1-1.2.3:1.0
     b: /devices/platform/soc/20980000.usb/usb1/1-1/1-1.2/1-1.2.4/1-1.2.4.4/1-1.2.4.4:1.0
