@@ -1,0 +1,147 @@
+---
+- name: Pi
+  hosts: pi
+  remote_user: pi
+  gather_facts: no
+  sudo: true
+
+  # TODO:
+  # - zrevidovat tagy
+
+  tasks:
+    - name: Update apt cache
+      apt: update_cache=yes
+
+    # --- application ---------------------------------------------------------
+
+    # prepare application ground
+
+    - name: Install application packages
+      apt: name={{item}}
+      with_items:
+        - usbmount
+        - python-pip
+        - supervisor
+        - rsync
+      tags:
+        - application
+
+    - name: Install Python packages
+      pip: name={{item}}
+      with_items:
+        - pyudev
+      tags:
+        - application
+    
+    # copy application
+
+    - name: Prepare application directory
+      file:
+        path: /application
+        state: directory
+      tags:
+        - application
+
+    - name: Copy application source code
+      copy:
+        src: application/jarmilka.py
+        dest: /application/
+      tags:
+        - application
+
+    - name: Copy sounds
+      copy:
+        src: application/sounds
+        dest: /application/
+      tags:
+        - application
+
+    - name: Setup supervisor
+      copy:
+        src: supervisor/jarmilka.conf
+        dest: /etc/supervisor/conf.d/
+      tags:
+        - application
+    # TODO: nejaky handler pro restart supervisoru?
+
+    # --- read only system ----------------------------------------------------
+
+    - name: Install UnionFS
+      apt:
+        name: unionfs-fuse
+      tags:
+        - ro
+
+    # turn off swap
+    # https://github.com/tvdzwan/hyperion/wiki/Make-Raspbian-Read-Only#disable-swap
+
+    - name: Turn off swapfile
+      command: dphys-swapfile swapoff
+      tags:
+        - swap
+
+    - name: Uninstall swapfile
+      command: dphys-swapfile uninstall
+      tags:
+        - swap
+
+    - name: Disable swap in update-rc records
+      service: name=dphys-swapfile enabled=no
+      tags:
+        - swap
+
+    # change /etc/fstab records
+    # http://raspberrypi.stackexchange.com/a/9135
+
+    - name: Make readonly / filesystem
+      lineinfile: >
+        dest=/etc/fstab
+        state=present
+        regexp='^([^ ]+)\s+/\s+ext4\s+([^ ]+)\s+(\d+)\s+(\d+)$'
+        line='\1 / ext4 \2,ro \3 \4'
+        backrefs=yes
+      tags:
+        - fstab
+
+    - name: RAM tmpfs filesystem for /tmp
+      lineinfile: >
+        dest=/etc/fstab
+        state=present
+        regexp='^tmpfs /tmp tmpfs defaults,size=30M 0 0$'
+        line='tmpfs /tmp tmpfs defaults,size=30M 0 0'
+      tags:
+        - fstab
+
+    - name: /var as unionfs-fuse
+      lineinfile: >
+        dest=/etc/fstab
+        state=present
+        regexp='^unionfs-fuse#/tmp=rw:/ro/var=ro /var fuse cow,allow_other,nonempty$'
+        line='unionfs-fuse#/tmp=rw:/ro/var=ro /var fuse cow,allow_other,nonempty'
+      tags:
+        - fstab
+
+    # change directory structure
+    # (move writable dirs into tmpfs through fuse)
+
+    - name: Make fake readonly /ro dir
+      file: 
+        path: /ro
+        state: directory
+        owner: root
+        group: root
+      tags:
+        - dirs
+
+    - name: Copy BASH script for /var move
+      copy:
+        src: scripts/move.sh
+        dest: /
+        mode: 0755
+      tags:
+        - dirs
+
+    - name: Run last BASH script
+      command: /move.sh
+      tags:
+        - dirs
